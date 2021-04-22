@@ -5,6 +5,7 @@ import com.redisexample.redisexample.repository.ProductRepository;
 import java.io.Serializable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -34,7 +35,6 @@ public class ProductService implements Serializable {
     return productRes;
   }
 
-
   public Flux<Product> getAllProducts() {
     return productRepository.findAll();
   }
@@ -47,12 +47,13 @@ public class ProductService implements Serializable {
     productRepository.deleteAll().block();
   }
 
-
   @Cacheable(value = "product", key = "#id")
   public Product getproductById(Long id) {
     System.out.println("====from database=====");
     return productRepository.findById(id).block();
   }
-
-
+  @CacheEvict(value = "product", key = "#id")
+  public void deleteProductById(Long id) {
+    productRepository.deleteById(id).block();
+  }
 }
