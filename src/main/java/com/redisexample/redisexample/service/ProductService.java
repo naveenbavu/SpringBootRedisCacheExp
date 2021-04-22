@@ -17,19 +17,17 @@ import reactor.core.publisher.Mono;
  * @author Naveen Bavu
  */
 @Component
-@CacheConfig(cacheNames = {"product"})
+//@CacheConfig(cacheNames = {"product"})
 public class ProductService implements Serializable {
 
   @Autowired
   private ProductRepository productRepository;
-//  @Autowired
-//  private ReactiveMongoTemplate reactiveMongoTemplate;
 
-
-  public Mono<Product> createProducts(Product product) {
-    Mono<Product> productRes = null;
+  @CachePut(value = "product", key = "#product.id")
+  public Product createProducts(Product product) {
+    Product productRes = null;
     try {
-      productRes = productRepository.save(product);
+      productRes = productRepository.save(product).block();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -50,10 +48,10 @@ public class ProductService implements Serializable {
   }
 
 
-  @Cacheable(key = "#id")
+  @Cacheable(value = "product", key = "#id")
   public Product getproductById(Long id) {
     System.out.println("====from database=====");
-    return  productRepository.findById(id).block();
+    return productRepository.findById(id).block();
   }
 
 
